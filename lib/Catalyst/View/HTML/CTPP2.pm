@@ -9,7 +9,7 @@ use File::Spec 'tmpdir';
 
 use base 'Catalyst::View';
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 my %ctpp2_allow_params = map { $_, 1 }
   qw/arg_stack_size code_stack_size steps_limit max_functions source_charset destination_charset/;
@@ -89,10 +89,11 @@ sub new {
         $config->{INCLUDE_PATH} = \@include_path;
     }
 
-    if (exists $config->{file_cache} && $config->{file_cache} > 0) {
-        if (   (exists $config->{file_cache} && $config->{file_cache} > 0)
-            || (exists $config->{file_cache_time} && $config->{file_cache_time} > 0)
-            || exists $config->{file_cache_dir})
+
+    if (!exists $config->{file_cache} || $config->{file_cache} != 0) {
+        if (   (exists $config->{file_cache_time} && $config->{file_cache_time} > 0)
+            || exists $config->{file_cache_dir}
+            || (!exists $config->{file_cache_time} && !exists $config->{file_cache_dir}))
         {
             $config->{file_cache_time} ||= 60 * 60;
             $config->{file_cache_dir}  ||= Path::Class::dir(File::Spec->tmpdir, $c->config->{name});
